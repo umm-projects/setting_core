@@ -48,7 +48,7 @@ namespace UnityModule.Settings {
         /// 設定を読み込む
         /// </summary>
         protected static void LoadSetting() {
-            instance = Resources.Load<T>(GetAssetName());
+            instance = Resources.Load<T>("Settings/" + GetAssetName());
         }
 
 #if UNITY_EDITOR

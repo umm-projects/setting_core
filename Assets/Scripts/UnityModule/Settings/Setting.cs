@@ -49,6 +49,10 @@ namespace UnityModule.Settings {
         /// </summary>
         protected static void LoadSetting() {
             instance = Resources.Load<T>("Settings/" + GetAssetName());
+            // もし、インスタンスが生成出来なかった (= アセットがない) 場合は、空のインスタンスを作る
+            if (instance == default(T)) {
+                instance = CreateInstance<T>();
+            }
         }
 
 #if UNITY_EDITOR

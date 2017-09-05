@@ -9,7 +9,7 @@
 # Install
 
 ```shell
-$ npm install @umm/setting_core
+$ npm install github:umm-projects/setting_core.git
 ```
 
 # Usage

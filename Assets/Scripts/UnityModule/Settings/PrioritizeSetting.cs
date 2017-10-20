@@ -40,11 +40,10 @@ namespace UnityModule.Settings {
         /// </summary>
         /// <returns>ProjectSetting のインスタンス</returns>
         private static void LoadProjectSettingByPriority() {
-            T[] settings = Resources.LoadAll<T>(GetAssetName());
-            if (settings.Length == 0) {
-                return;
+            instance = GetSettingList().OrderByDescending(x => x.Priority).FirstOrDefault();
+            if (instance == default(T)) {
+                instance = CreateInstance<T>();
             }
-            instance = settings.ToList().OrderByDescending(x => x.Priority).First();
         }
 
     }

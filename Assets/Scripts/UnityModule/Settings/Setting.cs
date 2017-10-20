@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -33,6 +35,15 @@ namespace UnityModule.Settings {
                 }
                 return instance;
             }
+        }
+
+        /// <summary>
+        /// 設定リストを取得
+        /// </summary>
+        /// <remarks>複数の Resources/Settings/ ディレクトリ以下に居る同名の設定ファイルを全て取得する</remarks>
+        /// <returns>設定のインスタンスリスト</returns>
+        public static List<T> GetSettingList() {
+            return Resources.LoadAll<T>("Settings/" + GetAssetName()).ToList();
         }
 
         /// <summary>

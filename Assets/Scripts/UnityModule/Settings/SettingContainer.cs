@@ -71,7 +71,6 @@ namespace UnityModule.Settings
         {
             if (File.Exists(System.IO.Path.Combine(Application.dataPath, "Resources", $"{Path}{Extension}")))
             {
-                Debug.LogError($"SettingContainer asset has already exists in `{System.IO.Path.Combine("Assets", "Resources", $"{Path}{Extension}")}`.");
                 return;
             }
 

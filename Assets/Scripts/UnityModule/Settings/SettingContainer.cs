@@ -17,6 +17,8 @@ namespace UnityModule.Settings
         IEnumerable<TSetting> GetAll<TSetting>() where TSetting : ISetting;
 
         IEnumerable<TSetting> GetAll<TSetting>(Func<TSetting, bool> predicate) where TSetting : ISetting;
+
+        void Add<TSetting>(TSetting setting) where TSetting : ISetting;
     }
 
     public class SettingContainer : ScriptableObject, ISettingContainer
@@ -41,9 +43,13 @@ namespace UnityModule.Settings
             set { instance = value; }
         }
 
-        [SerializeField] private List<Setting> settingList;
+        [SerializeField] private List<Setting> settingList = new List<Setting>();
 
-        private IEnumerable<ISetting> SettingList => settingList;
+        private IEnumerable<ISetting> SettingList
+        {
+            get { return settingList; }
+            set { settingList = value.Cast<Setting>().ToList(); }
+        }
 
         public TSetting Get<TSetting>() where TSetting : ISetting
         {
@@ -58,6 +64,13 @@ namespace UnityModule.Settings
         public IEnumerable<TSetting> GetAll<TSetting>(Func<TSetting, bool> predicate) where TSetting : ISetting
         {
             return GetAll<TSetting>().Where(predicate);
+        }
+
+        public void Add<TSetting>(TSetting setting) where TSetting : ISetting
+        {
+            var list = settingList.ToList();
+            list.Add(setting as Setting);
+            SettingList = list;
         }
 
 #if UNITY_EDITOR

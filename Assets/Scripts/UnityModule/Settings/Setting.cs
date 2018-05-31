@@ -1,88 +1,52 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using UnityEngine;
+﻿using System.IO;
+using JetBrains.Annotations;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using UnityEngine;
 
 namespace UnityModule.Settings {
 
-    /// <summary>
-    /// 設定クラスの基底クラス
-    /// </summary>
-    /// <remarks>Singleton アクセサを実装しています</remarks>
-    /// <typeparam name="T">設定クラス</typeparam>
-    public abstract class Setting<T> : ScriptableObject where T : Setting<T> {
+    public interface ISetting
+    {
+    }
 
-        /// <summary>
-        /// 設定アセットのパス
-        /// </summary>
-        private const string ASSET_PATH_FORMAT = "Assets/Resources/Settings/{0}.asset";
+    public abstract class Setting : ScriptableObject, ISetting
+    {
+    }
 
-        /// <summary>
-        /// 最も優先度が高いインスタンスの実体
-        /// </summary>
-        protected static T instance;
+    [PublicAPI]
+    public abstract class Setting<TSetting> : Setting where TSetting : Setting<TSetting>, ISetting
+    {
+        private const string DefaultAssetPathFormat = "Assets/Settings/{0}.asset";
 
-        /// <summary>
-        /// 最も優先度が高いインスタンス
-        /// </summary>
-        public static T Instance {
-            get {
-                if (instance == default(T)) {
-                    LoadSetting();
-                }
-                return instance;
-            }
+        public static TSetting GetOrDefault()
+        {
+            var setting = SettingContainer.Instance.Get<TSetting>();
+            return setting == null ? CreateInstance<TSetting>() : setting;
         }
 
-        /// <summary>
-        /// 設定リストを取得
-        /// </summary>
-        /// <remarks>複数の Resources/Settings/ ディレクトリ以下に居る同名の設定ファイルを全て取得する</remarks>
-        /// <returns>設定のインスタンスリスト</returns>
-        public static List<T> GetSettingList() {
-            return Resources.LoadAll<T>("Settings/" + GetAssetName()).ToList();
+        // ReSharper disable once MemberCanBePrivate.Global
+        protected static string GetAssetPath()
+        {
+            return DefaultAssetPathFormat;
         }
 
-        /// <summary>
-        /// アセット名を取得
-        /// </summary>
-        /// <remarks>クラス名とします</remarks>
-        /// <returns>アセット名</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
         protected static string GetAssetName() {
-            return typeof(T).Name;
-        }
-
-        /// <summary>
-        /// 設定を読み込む
-        /// </summary>
-        protected static void LoadSetting() {
-            instance = Resources.Load<T>("Settings/" + GetAssetName());
-            // もし、インスタンスが生成出来なかった (= アセットがない) 場合は、空のインスタンスを作る
-            if (instance == default(T)) {
-                instance = CreateInstance<T>();
-            }
+            return typeof(TSetting).Name;
         }
 
 #if UNITY_EDITOR
-
-        /// <summary>
-        /// 設定アセットを作成する
-        /// </summary>
         protected static void CreateAsset() {
-            T projectSetting = CreateInstance<T>();
-            string directoryPath = Path.GetDirectoryName(Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), string.Format(ASSET_PATH_FORMAT, GetAssetName()))));
+            var projectSetting = CreateInstance<TSetting>();
+            var directoryPath = Path.GetDirectoryName(Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), string.Format(GetAssetPath(), GetAssetName()))));
             if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath)) {
                 Directory.CreateDirectory(directoryPath);
             }
-            AssetDatabase.CreateAsset(projectSetting, string.Format(ASSET_PATH_FORMAT, GetAssetName()));
+            AssetDatabase.CreateAsset(projectSetting, string.Format(GetAssetPath(), GetAssetName()));
             AssetDatabase.Refresh();
         }
-
 #endif
-
     }
-
 }

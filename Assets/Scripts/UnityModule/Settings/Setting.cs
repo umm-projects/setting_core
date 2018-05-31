@@ -18,34 +18,33 @@ namespace UnityModule.Settings {
     [PublicAPI]
     public abstract class Setting<TSetting> : Setting where TSetting : Setting<TSetting>, ISetting
     {
-        private const string DefaultAssetPathFormat = "Assets/Settings/{0}.asset";
-
         public static TSetting GetOrDefault()
         {
             var setting = SettingContainer.Instance.Get<TSetting>();
             return setting == null ? CreateInstance<TSetting>() : setting;
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        protected static string GetAssetPath()
-        {
-            return DefaultAssetPathFormat;
-        }
-
-        // ReSharper disable once MemberCanBePrivate.Global
-        protected static string GetAssetName() {
-            return typeof(TSetting).Name;
-        }
-
 #if UNITY_EDITOR
-        protected static void CreateAsset() {
+        private const string DefaultAssetPathFormat = "Assets/{1}Settings/{0}.asset";
+
+        private const string BaseDirectoryName = "Settings";
+
+        private const string EnvironmentDirectoryName = "Environment";
+
+        protected static void CreateAsset(bool isEnvironmentSetting = false) {
             var projectSetting = CreateInstance<TSetting>();
-            var directoryPath = Path.GetDirectoryName(Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), string.Format(GetAssetPath(), GetAssetName()))));
-            if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath)) {
-                Directory.CreateDirectory(directoryPath);
+            var assetDirectoryPath = Path.Combine(
+                BaseDirectoryName,
+                isEnvironmentSetting ? EnvironmentDirectoryName : string.Empty
+            );
+            var assetName = typeof(TSetting).Name;
+            if (!string.IsNullOrEmpty(Path.Combine(Application.dataPath, assetDirectoryPath)) && !Directory.Exists(Path.Combine(Application.dataPath, assetDirectoryPath))) {
+                Directory.CreateDirectory(Path.Combine(Application.dataPath, assetDirectoryPath));
             }
-            AssetDatabase.CreateAsset(projectSetting, string.Format(GetAssetPath(), GetAssetName()));
+            AssetDatabase.CreateAsset(projectSetting, Path.Combine("Assets", assetDirectoryPath, $"{assetName}.asset"));
             AssetDatabase.Refresh();
+            SettingContainer.CreateAsset();
+            SettingContainer.Instance.Add(projectSetting);
         }
 #endif
     }

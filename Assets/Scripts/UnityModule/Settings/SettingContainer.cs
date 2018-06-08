@@ -53,7 +53,7 @@ namespace UnityModule.Settings
 
         public TSetting Get<TSetting>() where TSetting : ISetting
         {
-            return (TSetting)SettingList?.First(x => x is TSetting);
+            return (TSetting)SettingList?.FirstOrDefault(x => x is TSetting);
         }
 
         public IEnumerable<TSetting> GetAll<TSetting>() where TSetting : ISetting

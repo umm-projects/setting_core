@@ -31,22 +31,16 @@ namespace UnityModule.Settings
         private static ISettingContainer instance;
 
         // XXX: Should support to Dependency Injection...
-        public static ISettingContainer Instance
-        {
-            get
-            {
-                return instance
-                       // Try to load from Resources
-                       ?? (instance = Resources.Load<SettingContainer>(Path))
-                       // Create empty instance
-                       ?? (instance = CreateInstance<SettingContainer>());
-            }
-            set { instance = value; }
-        }
+        public static ISettingContainer Instance =>
+            instance
+                // Try to load from Resources
+                ?? (instance = Resources.Load<SettingContainer>(Path))
+                // Create empty instance
+                ?? (instance = CreateAsset());
 
         [SerializeField] private List<Setting> settingList = new List<Setting>();
 
-        private IEnumerable<ISetting> SettingList
+        private IEnumerable<ISetting> SettingList => settingList;
 
         public bool Exists<TSetting>() where TSetting : ISetting
         {
@@ -82,11 +76,11 @@ namespace UnityModule.Settings
         /// [CreateAssetMenu] を用いても良かったが、パスを固定にしたかったので、敢えてヤヤコシイ処理を入れている
         /// </summary>
         [MenuItem("Assets/Create/SettingContainer")]
-        public static void CreateAsset()
+        public static SettingContainer CreateAsset()
         {
             if (File.Exists(System.IO.Path.Combine(Application.dataPath, "Resources", $"{Path}{Extension}")))
             {
-                return;
+                return Resources.Load<SettingContainer>(Path);
             }
 
             var directoryPath = System.IO.Path.Combine(Application.dataPath, "Resources");
@@ -95,9 +89,10 @@ namespace UnityModule.Settings
                 Directory.CreateDirectory(directoryPath);
             }
 
-            var projectSetting = CreateInstance<SettingContainer>();
-            AssetDatabase.CreateAsset(projectSetting, System.IO.Path.Combine("Assets", "Resources", $"{Path}{Extension}"));
+            var settingContainer = CreateInstance<SettingContainer>();
+            AssetDatabase.CreateAsset(settingContainer, System.IO.Path.Combine("Assets", "Resources", $"{Path}{Extension}"));
             AssetDatabase.Refresh();
+            return settingContainer;
         }
 
 #endif

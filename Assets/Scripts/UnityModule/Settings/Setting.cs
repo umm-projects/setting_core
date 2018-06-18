@@ -31,7 +31,7 @@ namespace UnityModule.Settings {
 
         private const string EnvironmentDirectoryName = "Environment";
 
-        protected static void CreateAsset(bool isEnvironmentSetting = false) {
+        protected static TSetting CreateAsset(bool isEnvironmentSetting = false) {
             var projectSetting = CreateInstance<TSetting>();
             var assetDirectoryPath = Path.Combine(
                 BaseDirectoryName,
@@ -45,6 +45,7 @@ namespace UnityModule.Settings {
             AssetDatabase.Refresh();
             SettingContainer.CreateAsset();
             SettingContainer.Instance.Add(projectSetting);
+            return projectSetting;
         }
 #endif
     }

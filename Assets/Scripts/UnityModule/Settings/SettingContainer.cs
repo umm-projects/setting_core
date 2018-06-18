@@ -64,9 +64,7 @@ namespace UnityModule.Settings
 
         public void Add<TSetting>(TSetting setting) where TSetting : ISetting
         {
-            var list = settingList.ToList();
-            list.Add(setting as Setting);
-            SettingList = list;
+            settingList.Add(setting as Setting);
         }
 
 #if UNITY_EDITOR

@@ -5,13 +5,14 @@ using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
-
 #endif
 
 namespace UnityModule.Settings
 {
     public interface ISettingContainer
     {
+        bool Exists<TSetting>() where TSetting : ISetting;
+
         TSetting Get<TSetting>() where TSetting : ISetting;
 
         IEnumerable<TSetting> GetAll<TSetting>() where TSetting : ISetting;
@@ -46,9 +47,10 @@ namespace UnityModule.Settings
         [SerializeField] private List<Setting> settingList = new List<Setting>();
 
         private IEnumerable<ISetting> SettingList
+
+        public bool Exists<TSetting>() where TSetting : ISetting
         {
-            get { return settingList; }
-            set { settingList = value.Cast<Setting>().ToList(); }
+            return SettingList?.Any(x => x is TSetting) ?? false;
         }
 
         public TSetting Get<TSetting>() where TSetting : ISetting

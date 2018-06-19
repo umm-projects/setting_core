@@ -35,8 +35,11 @@ namespace UnityModule.Settings
             instance
                 // Try to load from Resources
                 ?? (instance = Resources.Load<SettingContainer>(Path))
+#if UNITY_EDITOR
                 // Create empty instance
-                ?? (instance = CreateAsset());
+                ?? (instance = CreateAsset())
+#endif
+                ;
 
         [SerializeField] private List<Setting> settingList = new List<Setting>();
 

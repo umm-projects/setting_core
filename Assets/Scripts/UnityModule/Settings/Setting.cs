@@ -11,6 +11,10 @@ namespace UnityModule.Settings {
     {
     }
 
+    public interface IEnvironmentSetting : ISetting
+    {
+    }
+
     public abstract class Setting : ScriptableObject, ISetting
     {
     }
@@ -20,7 +24,7 @@ namespace UnityModule.Settings {
     {
         public static TSetting GetOrDefault()
         {
-            var setting = SettingContainer.Instance.Get<TSetting>();
+            var setting = SettingContainer.ResolveContainerInstance<TSetting>().Get<TSetting>();
             return setting == null ? CreateInstance<TSetting>() : setting;
         }
 
@@ -31,11 +35,11 @@ namespace UnityModule.Settings {
 
         private const string EnvironmentDirectoryName = "Environment";
 
-        protected static TSetting CreateAsset(bool isEnvironmentSetting = false) {
+        protected static TSetting CreateAsset() {
             var projectSetting = CreateInstance<TSetting>();
             var assetDirectoryPath = Path.Combine(
                 BaseDirectoryName,
-                isEnvironmentSetting ? EnvironmentDirectoryName : string.Empty
+                typeof(IEnvironmentSetting).IsAssignableFrom(typeof(TSetting)) ? EnvironmentDirectoryName : string.Empty
             );
             var assetName = typeof(TSetting).Name;
             if (!string.IsNullOrEmpty(Path.Combine(Application.dataPath, assetDirectoryPath)) && !Directory.Exists(Path.Combine(Application.dataPath, assetDirectoryPath))) {
@@ -43,6 +47,7 @@ namespace UnityModule.Settings {
             }
             AssetDatabase.CreateAsset(projectSetting, AssetDatabase.GenerateUniqueAssetPath(Path.Combine("Assets", assetDirectoryPath, $"{assetName}.asset")));
             AssetDatabase.Refresh();
+            SettingContainer.ResolveContainerInstance<TSetting>().Add(projectSetting);
             return projectSetting;
         }
 #endif

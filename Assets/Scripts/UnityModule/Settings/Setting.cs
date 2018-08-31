@@ -29,6 +29,32 @@ namespace UnityModule.Settings
             return setting == null ? CreateInstance<TSetting>() : setting;
         }
 
+        protected static string GetDefaultFromEnvironmentVariable(string environmentVariableKey, string defaultValue = "")
+        {
+            return
+                string.IsNullOrEmpty(Environment.GetEnvironmentVariable(environmentVariableKey))
+                    ? defaultValue
+                    : Environment.GetEnvironmentVariable(environmentVariableKey);
+        }
+
+        protected static int GetDefaultFromEnvironmentVariable(string environmentVariableKey, int defaultValue)
+        {
+            int value;
+            return int.TryParse(Environment.GetEnvironmentVariable(environmentVariableKey), out value) ? value : defaultValue;
+        }
+
+        protected static float GetDefaultFromEnvironmentVariable(string environmentVariableKey, float defaultValue)
+        {
+            float value;
+            return float.TryParse(Environment.GetEnvironmentVariable(environmentVariableKey), out value) ? value : defaultValue;
+        }
+
+        protected static bool GetDefaultFromEnvironmentVariable(string environmentVariableKey, bool defaultValue)
+        {
+            bool value;
+            return bool.TryParse(Environment.GetEnvironmentVariable(environmentVariableKey), out value) ? value : defaultValue;
+        }
+
 #if UNITY_EDITOR
         private const string DefaultAssetPathFormat = "Assets/{1}Settings/{0}.asset";
 
